@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtubedemo/Screens/responsivechanges.dart';
 import 'package:youtubedemo/Screens/signup_screen.dart';
 
@@ -50,22 +50,26 @@ class LoginScreen extends StatelessWidget {
                       final user = _usernameController.text.trim();
                       final pass = _passwordController.text.trim();
 
-                      final prefes = await SharedPreferences.getInstance();
-                      final savedUsername = prefes.getString('username');
-                      final savedPassword = prefes.getString("password");
-
-                      if (pass == savedPassword && user == savedUsername) {
+                      try {
+                        FirebaseAuth.instance.signInWithEmailAndPassword(
+                          email: user,
+                          password: pass,
+                        );
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (context) => Responsivechanges(),
                           ),
                         );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Invalid username or password"),
-                          ),
-                        );
+                      } catch (e) {
+                        String errorMessage = "Login Failed";
+                        if (e is FirebaseAuthException) {
+                          errorMessage = e.message ?? "Login Failed";
+                        } else {
+                          errorMessage = e.toString();
+                        }
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(errorMessage)));
                       }
                     },
                     child: Text("Login"),
