@@ -1,0 +1,12 @@
+create web youtubedemo --project=fir-b4744
+Create your WEB app in project fir-b4744:
+✔ Creating your Web app
+
+🎉🎉🎉 Your Firebase WEB App is ready! 🎉🎉🎉
+
+App information:
+  - App ID: 1:333504090637:web:c31fd2cb2b56382f313b44
+  - Display name: youtubedemo
+
+You can run this command to print out your new app's Google Services config:
+  firebase apps:sdkconfig WEB 1:333504090637:web:c31fd2cb2b56382f313b44
