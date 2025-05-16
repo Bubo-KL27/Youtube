@@ -128,7 +128,7 @@ class SignupScreen extends StatelessWidget {
                     try {
                       await FirebaseAuth.instance
                           .createUserWithEmailAndPassword(
-                            email: email,
+                            email: username,
                             password: password,
                           );
 

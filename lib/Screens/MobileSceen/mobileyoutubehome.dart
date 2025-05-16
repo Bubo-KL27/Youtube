@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youtubedemo/Screens/MobileSceen/addbuttonscreen.dart';
@@ -12,8 +13,7 @@ class Mobileyoutubehome extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  final  videoFiles = ref.watch(videoFileProvider);
-  final videoControllers =ref.watch(videoPlayerControllerProvider);
+
     return Scaffold(
       appBar: AppBar(
         leading: Icon(Icons.play_arrow, color: Colors.red, size: 40),
@@ -24,34 +24,28 @@ class Mobileyoutubehome extends ConsumerWidget {
         ],
       ),
 
-     body:  videoFiles.isEmpty
-          ? Center(child: Text("No videos uploaded or taken yet"))
-          : ListView.builder(
-              itemCount: videoFiles.length,
-              itemBuilder: (context, index) {
-                final controller = videoControllers[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: controller.value.isInitialized
-                      ? GestureDetector(
-                        onTap: (){
-                          if (controller.value.isPlaying) {
-                            controller.pause();
-                            
-                          }
-                          else{
-                            controller.play();
-                          }
-                        },
-                        child: AspectRatio(
-                            aspectRatio: controller.value.aspectRatio,
-                            child: VideoPlayer(controller),
-                          ),
-                      )
-                      : CircularProgressIndicator(),
-                );
-              },
-            ),
+     body: StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collection('videos')
+      .orderBy('uploaded_at', descending: true)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+    final docs = snapshot.data!.docs;
+    if (docs.isEmpty) return Center(child: Text("No videos uploaded or taken yet"));
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        final data = docs[index].data() as Map<String, dynamic>;
+        final url = data['url'];
+        return AspectRatio(
+          aspectRatio: 16 / 9,
+          child: VideoPlayer(VideoPlayerController.networkUrl(url)),
+        );
+      },
+    );
+  },
+),
 
       bottomNavigationBar: BottomNavigationBar(
         items: [
